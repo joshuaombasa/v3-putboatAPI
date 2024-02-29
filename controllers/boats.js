@@ -34,29 +34,44 @@ boatRouter.get('/:id', async (request,response, next) => {
     }
 })
 
-boatRouter.post('/', async (request,response, next) => {
+boatRouter.post('/', async(request,response, next) => {
     const {name, type, price}  = request.body 
-    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
-    if (!decodedToken.id) {
-        return response.status(400).json({error: 'invalid token'})
-    }
-
-    const vendor = await Vendor.findById(decodedToken.id)
-
-    const newBoat = new Boat({
+    const boat = new Boat({
         name,
         type,
         price
     })
     try {
-        const savedBoat = await newBoat.save()
-        vendor.boats = vendor.boats.concat(savedBoat._id)
-        await vendor.save()
+        const savedBoat = await boat.save()
         response.status(201).json(savedBoat)
     } catch (error) {
         next(error)
     }
 })
+
+// boatRouter.post('/', async (request,response, next) => {
+//     const {name, type, price}  = request.body 
+//     const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+//     if (!decodedToken.id) {
+//         return response.status(400).json({error: 'invalid token'})
+//     }
+
+//     const vendor = await Vendor.findById(decodedToken.id)
+
+//     const newBoat = new Boat({
+//         name,
+//         type,
+//         price
+//     })
+//     try {
+//         const savedBoat = await newBoat.save()
+//         vendor.boats = vendor.boats.concat(savedBoat._id)
+//         await vendor.save()
+//         response.status(201).json(savedBoat)
+//     } catch (error) {
+//         next(error)
+//     }
+// })
 
 boatRouter.put('/', async (request,response, next) => {
     const {name, type, price}  = request.body 
@@ -80,10 +95,10 @@ boatRouter.put('/', async (request,response, next) => {
     }
 })
 
-boatRouter.delete('/', async (request,response, next) => {
+boatRouter.delete('/:id', async (request,response, next) => {
     try {
-        await findByIdAndDelete(request.params.id)
-        res.status(204).end()
+        await Boat.findByIdAndDelete(request.params.id)
+        response.status(204).end()
     } catch (error) {
         next(error)
     }
